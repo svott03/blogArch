@@ -29,16 +29,15 @@ func main() {
  
    c := pb.NewTextFilterServiceClient(conn)
  
-   ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+   ctx, cancel := context.WithTimeout(context.Background(), 80*time.Second)
  
    defer cancel()
  
    filterTasks := []FilterTask{
-       {Input: "Code review"},
-       {Input: "Make YouTube Video"},
-       {Input: "Go to the gym"},
        {Input: "Buy groceries"},
        {Input: "Meet with mentor"},
+			 {Input: "You are awful"},
+			 {Input: "I don\\'t like that"},
    }
  
    for _, task := range filterTasks {

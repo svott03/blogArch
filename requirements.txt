@@ -1,1 +1,3 @@
 transformers==4.25.1
+tensorflow-macos
+# numpy==1.24.1

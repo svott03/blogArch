@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net"
+	"os/exec"
 
 	pb "example.com/blogArch/proto"
 	"google.golang.org/grpc"
@@ -21,8 +22,18 @@ type TextFilterServer struct {
 // TODO Add filter model and logic
 func (s *TextFilterServer) CreateFilterOutput(ctx context.Context, in *pb.FilterInput) (*pb.FilterOutput, error) {
 	log.Printf("Received: %v", in.GetInput())
+	// Run model
+
+	cmd := exec.Command("zsh", "-c", "python3 analysis.py " + in.GetInput())
+	res, err := cmd.Output()
+	res_str := string(res)
+	if err != nil {
+		log.Fatal(err.Error())
+		res_str = "Error in Prediction"
+	}
+	
 	out := &pb.FilterOutput{
-		Output:        in.GetInput() + "!",
+		Output:        res_str,
 	}
 
 	return out, nil
