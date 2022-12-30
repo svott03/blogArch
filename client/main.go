@@ -17,6 +17,7 @@ type FilterTask struct {
    Input        string
 }
  
+// TODO add client file gateway
 func main() {
    conn, err := grpc.Dial(ADDRESS, grpc.WithInsecure(), grpc.WithBlock())
  
@@ -26,7 +27,7 @@ func main() {
  
    defer conn.Close()
  
-   c := pb.NewTodoServiceClient(conn)
+   c := pb.NewTextFilterServiceClient(conn)
  
    ctx, cancel := context.WithTimeout(context.Background(), time.Second)
  

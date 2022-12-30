@@ -6,7 +6,6 @@ import (
 	"net"
 
 	pb "example.com/blogArch/proto"
-	"github.com/google/uuid"
 	"google.golang.org/grpc"
 )
 
@@ -19,10 +18,11 @@ type TextFilterServer struct {
 	pb.UnimplementedTextFilterServiceServer
 }
 
+// TODO Add filter model and logic
 func (s *TextFilterServer) CreateFilterOutput(ctx context.Context, in *pb.FilterInput) (*pb.FilterOutput, error) {
 	log.Printf("Received: %v", in.GetInput())
 	out := &pb.FilterOutput{
-		Output:        in.GetInput(),
+		Output:        in.GetInput() + "!",
 	}
 
 	return out, nil
