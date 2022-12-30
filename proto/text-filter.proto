@@ -1,0 +1,18 @@
+syntax="proto3";
+ 
+package proto;
+ 
+option go_package = "example.com/blogArch";
+ 
+ 
+message FilterOutput {
+  string output = 2;
+}
+ 
+message FilterInput {
+  string input = 1;
+}
+ 
+service textFilterService {
+   rpc CreateFilterOutput(FilterInput) returns (FilterOutput) {}
+}
