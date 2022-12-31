@@ -78,7 +78,7 @@ func Entry() gin.HandlerFunc {
 		if err != nil {
 			log.Fatalf("could not create user: %v", err)
 		}
-
+		// TODO entry positive/negative cases, insert into db then send appropriate response msg
 		resp := responses.EntryResponse{
 			Status: res.GetOutput(),
 		}
