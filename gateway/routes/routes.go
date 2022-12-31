@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"gateway/controllers"
+	"example.com/blogArch/gateway/controllers"
 	"github.com/gin-gonic/gin"
 )
 

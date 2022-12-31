@@ -2,7 +2,7 @@ package main
 
 import (
 	// "gateway/configs"
-	"gateway/routes"
+	"example.com/blogArch/gateway/routes"
 	"github.com/gin-gonic/gin"
 )
 

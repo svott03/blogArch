@@ -1,15 +1,17 @@
 package controllers
 
 import (
-	"gateway/responses"
+	"example.com/blogArch/gateway/models"
+	"example.com/blogArch/gateway/responses"
 	// "gateway/configs"
 	// "fmt"
+	"context"
 	"log"
 	"net/http"
-	// "time"
+	"time"
 
-	// pb "example.com/blogArch/proto"
-	// "google.golang.org/grpc"
+	pb "example.com/blogArch/proto"
+	"google.golang.org/grpc"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,12 +42,45 @@ func GetProfile() gin.HandlerFunc {
 	}
 }
 
+// Add gRPC data models
+const (
+	ADDRESS = "localhost:50051"
+)
+
+type FilterTask struct {
+	Input string
+}
+
 func Entry() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Println("In entry controller...")
+		var body models.EntryModel
+		c.BindJSON(&body)
+		// Send information to gRPC
+		conn, err := grpc.Dial(ADDRESS, grpc.WithInsecure(), grpc.WithBlock())
+
+		if err != nil {
+			log.Fatalf("did not connect : %v", err)
+		}
+
+		defer conn.Close()
+
+		// Establish connection with microservice
+		cont := pb.NewTextFilterServiceClient(conn)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 80*time.Second)
+
+		defer cancel()
+		res, err := cont.CreateFilterOutput(ctx, &pb.FilterInput{Input: body.Entry})
+		
+		log.Println("Ouput is %s", res.GetOutput())
+
+		if err != nil {
+			log.Fatalf("could not create user: %v", err)
+		}
 
 		resp := responses.EntryResponse{
-			Status: "Entry Posted!",
+			Status: res.GetOutput(),
 		}
 		c.JSON(http.StatusOK, resp)
 	}
@@ -56,7 +91,7 @@ func Login() gin.HandlerFunc {
 		log.Println("In login controller...")
 
 		resp := responses.LoginResponse{
-			User: "User",
+			User:     "User",
 			Password: "Password",
 		}
 		c.JSON(http.StatusOK, resp)
@@ -68,7 +103,7 @@ func Register() gin.HandlerFunc {
 		log.Println("In register controller...")
 
 		resp := responses.RegisterResponse{
-			User: "RegisterUser",
+			User:     "RegisterUser",
 			Password: "RegisterPassword",
 		}
 		c.JSON(http.StatusOK, resp)
