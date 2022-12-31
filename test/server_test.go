@@ -43,24 +43,33 @@ func TestMainPage(t *testing.T) {
 //   // }
 // }
 
-// func TestLogin(t *testing.T) {
-//   assert := require.New(t)
+func TestRegister(t *testing.T) {
+  assert := require.New(t)
+	entry := models.LoginModel {
+		Username: "user1",
+		Password: "password",
+	}
+	data, _ := json.Marshal(entry)
+	fmt.Println(string(data))
+	res, err := http.Post("http://localhost:8080/register", "application/json", bytes.NewBuffer(data))
+	assert.Nil(err)
+	var r responses.StatusResponse
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&r)
+	assert.Nil(err)
+	fmt.Printf("Status: %s\n", r.Status)
+  assert.Equal("user1", r.Status, "they should be equal")
 
-//   // assert equality
-//   assert.Equal(123, 123, "they should be equal")
 
-//   // assert inequality
-//   assert.NotEqual(123, 456, "they should not be equal")
-//   // assert for nil (good for errors)
 
-//   // assert for not nil (good when you expect something)
-//   // if assert.NotNil(nil) {
-// 		// fmt.Println("Hi")
-//     // now we know that object isn't nil, we are safe to make
-//     // further assertions without causing any errors
-//     assert.Equal("Something", "Something")
-//   // }
-// }
+	res, err = http.Post("http://localhost:8080/register", "application/json", bytes.NewBuffer(data))
+	assert.Nil(err)
+	decoder = json.NewDecoder(res.Body)
+	err = decoder.Decode(&r)
+	assert.Nil(err)
+	fmt.Printf("Status: %s\n", r.Status)
+	assert.Equal("", r.Status, "they should be equal")
+}
 
 func TestEntry(t *testing.T) {
   assert := require.New(t)
@@ -68,10 +77,9 @@ func TestEntry(t *testing.T) {
 		Entry: "This is a positive Entry!",
 	}
 	data, _ := json.Marshal(entry)
-	fmt.Println(string(data))
 	res, err := http.Post("http://localhost:8080/entry", "application/json", bytes.NewBuffer(data))
 	assert.Nil(err)
-	var r responses.EntryResponse
+	var r responses.StatusResponse
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&r)
 	assert.Nil(err)

@@ -4,7 +4,9 @@ go 1.19
 
 require (
 	github.com/gin-gonic/gin v1.8.2
+	github.com/lib/pq v1.10.7
 	github.com/stretchr/testify v1.8.1
+	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 	google.golang.org/grpc v1.51.0
 	google.golang.org/protobuf v1.28.1
 )
@@ -25,7 +27,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect

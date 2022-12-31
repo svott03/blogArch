@@ -7,4 +7,10 @@ server_test <-> gateway <-> db
                         <-> text-filter
 
 
-In this system, we use a SQL database as we have relational data (ie entry querying is relies on username).
+In this system, we use a SQL database (PostgreSQL) as we have relational data (ie entry querying is relies on username).
+
+
+
+Features: password encryption, sql db, JWT???
+
+Want: Docker + K8s + Redis Cache?
