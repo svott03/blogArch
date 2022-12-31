@@ -9,16 +9,6 @@ type ProfileResponse struct {
 	Entries []string
 }
 
-type EntryResponse struct {
+type StatusResponse struct {
 	Status string
-}
-
-type LoginResponse struct {
-	User string
-	Password string
-}
-
-type RegisterResponse struct {
-	User string
-	Password string
 }

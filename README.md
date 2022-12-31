@@ -5,3 +5,6 @@ Our frontend will be a testing suite. We have an API gateway that handles http R
 
 server_test <-> gateway <-> db
                         <-> text-filter
+
+
+In this system, we use a SQL database as we have relational data (ie entry querying is relies on username).

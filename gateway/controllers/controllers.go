@@ -3,8 +3,8 @@ package controllers
 import (
 	"example.com/blogArch/gateway/models"
 	"example.com/blogArch/gateway/responses"
-	// "gateway/configs"
-	// "fmt"
+	"example.com/blogArch/gateway/configs"
+	"example.com/blogArch/gateway/utils"
 	"context"
 	"log"
 	"net/http"
@@ -16,8 +16,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// var userCollection *mongo.Collection = configs.GetCollection(configs.DB, "users")
-// var validate = validator.New()
 
 func GetMainPage() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -33,7 +31,7 @@ func GetMainPage() gin.HandlerFunc {
 func GetProfile() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Println("In profile controller...")
-
+		// TODO add JWT for passing authentication information
 		resp := responses.ProfileResponse{
 			UserID:  "ID: John Doe",
 			Entries: []string{"FirstEntry", "SecondEntry"},
@@ -54,6 +52,7 @@ type FilterTask struct {
 func Entry() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Println("In entry controller...")
+		// TODO JWT authentication information
 		var body models.EntryModel
 		c.BindJSON(&body)
 		// Send information to gRPC
@@ -79,7 +78,7 @@ func Entry() gin.HandlerFunc {
 			log.Fatalf("could not create user: %v", err)
 		}
 		// TODO entry positive/negative cases, insert into db then send appropriate response msg
-		resp := responses.EntryResponse{
+		resp := responses.StatusResponse{
 			Status: res.GetOutput(),
 		}
 		c.JSON(http.StatusOK, resp)
@@ -89,11 +88,15 @@ func Entry() gin.HandlerFunc {
 func Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Println("In login controller...")
+		var body models.LoginModel
+		c.BindJSON(&body)
 
-		resp := responses.LoginResponse{
-			User:     "User",
-			Password: "Password",
+		status := utils.TryLogin(body.Username, body.Password)
+
+		resp := responses.StatusResponse{
+			Status: status,
 		}
+		// TODO return JWT?
 		c.JSON(http.StatusOK, resp)
 	}
 }
@@ -101,11 +104,13 @@ func Login() gin.HandlerFunc {
 func Register() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Println("In register controller...")
-
-		resp := responses.RegisterResponse{
-			User:     "RegisterUser",
-			Password: "RegisterPassword",
+		var body models.RegisterModel
+		c.BindJSON(&body)
+		status := utils.TryRegister(body.Username, body.Password)
+		resp := responses.StatusResponse{
+			Status: status,
 		}
+		// TODO return JWT?
 		c.JSON(http.StatusOK, resp)
 	}
 }
