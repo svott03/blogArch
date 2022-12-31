@@ -69,7 +69,7 @@ func Register() gin.HandlerFunc {
 
 		resp := responses.RegisterResponse{
 			User: "RegisterUser",
-			Password: "RegisterPassword".
+			Password: "RegisterPassword",
 		}
 		c.JSON(http.StatusOK, resp)
 	}

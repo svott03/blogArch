@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gateway/configs"
+	// "gateway/configs"
 	"gateway/routes"
 	"github.com/gin-gonic/gin"
 )
