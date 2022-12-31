@@ -1,12 +1,11 @@
 package utils
 
 import (
-	// "example.com/blogArch/gateway/configs"
+	"example.com/blogArch/gateway/configs"
 	"golang.org/x/crypto/bcrypt"
 	"database/sql"
 	_ "github.com/lib/pq"
 	"log"
-	"fmt"
 )
 
 func HashPassword(password string) (string, error) {
@@ -20,16 +19,16 @@ func CheckPasswordHash(password, hash string) bool {
 }
 
 func TryRegister(Username string, Password string) string{
-	// hash, _ := HashPassword(password)
+	hash, _ := HashPassword(Password)
 	// check database
-	fmt.Println("In TryRegister Util Function")
-	connStr := "postgresql://newuser:password@localhost/blog?sslmode=disable"
+	log.Println("In TryRegister Util Function")
+	connStr := "postgresql://" + configs.EnvUsername() + ":" + configs.EnvPassword() + "@localhost/blog?sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// var q = "INSERT INTO users (\"user\", password) \n VALUES ('" + Username + "', '" + Password + "') \n RETURNING *;"
-	q := "INSERT INTO users (\"user\", password) SELECT '" + Username + "', '" + Password + "' WHERE NOT EXISTS (SELECT \"user\" FROM users WHERE \"user\" = '" + Username + "') LIMIT 1 RETURNING \"user\";"
+	q := "INSERT INTO users (\"user\", password) SELECT '" + Username + "', '" + hash + "' WHERE NOT EXISTS (SELECT \"user\" FROM users WHERE \"user\" = '" + Username + "') LIMIT 1 RETURNING \"user\";"
 	log.Println(q)
 	rows, err := db.Query(q)
 	if err != nil {
@@ -39,12 +38,32 @@ func TryRegister(Username string, Password string) string{
 	var res string
 	for rows.Next() {
 		rows.Scan(&res)
-		fmt.Println(res)
+		log.Println(res)
 	}
 	return res
 }
 
 func TryLogin(Username string, Password string) string{
-	// hash, _ := HashPassword(password)
-	return ""
+	log.Println("In TryLogin Util Function")
+	connStr := "postgresql://" + configs.EnvUsername() + ":" + configs.EnvPassword() + "@localhost/blog?sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	q := "SELECT password from users WHERE \"user\" = '" + Username + "';"
+	rows, err := db.Query(q)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	var res string
+	for rows.Next() {
+		rows.Scan(&res)
+		log.Println(res)
+	}
+	if res == "" || !CheckPasswordHash(Password, res) {
+		return "Username or password does not match"
+	} else {
+		return "Logged in"
+	}
 }

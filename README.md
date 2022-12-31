@@ -9,8 +9,7 @@ server_test <-> gateway <-> db
 
 In this system, we use a SQL database (PostgreSQL) as we have relational data (ie entry querying is relies on username).
 
+Set the hostname/address as localhost
 
 
 Features: password encryption, sql db, JWT???
-
-Want: Docker + K8s + Redis Cache?
