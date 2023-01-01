@@ -3,8 +3,7 @@ package utils
 import (
 	"example.com/blogArch/gateway/configs"
 	"golang.org/x/crypto/bcrypt"
-	"database/sql"
-	_ "github.com/lib/pq"
+	
 	"log"
 )
 
@@ -18,19 +17,43 @@ func CheckPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
+func GrabEntries() []string {
+	// TODO add JWT username authentication
+	log.Println("In GrabEntries Util Function")
+	query := "SELECT entry from entries WHERE \"user\" = 'user1';"
+	rows, err := configs.DB.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	var res string
+	allEntries := make([]string, 0)
+	for rows.Next() {
+		rows.Scan(&res)
+		allEntries = append(allEntries, res)
+		log.Printf("Entry is %s\n", res)
+	}
+	return allEntries
+}
+
+func InsertEntry(entry string) string {
+	log.Println("In InsertEntry Util Function")
+	// TODO add JWT username
+	query := "INSERT INTO entries (\"user\", entry) VALUES ('user1', '" + entry + "');"
+	_, err := configs.DB.Query(query)
+	if err != nil {
+		log.Fatal(err)
+		return "Could not insert due to internal server error."
+	}
+	return "Inserted entry!"
+}
+
 func TryRegister(Username string, Password string) string{
 	hash, _ := HashPassword(Password)
 	// check database
 	log.Println("In TryRegister Util Function")
-	connStr := "postgresql://" + configs.EnvUsername() + ":" + configs.EnvPassword() + "@localhost/blog?sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// var q = "INSERT INTO users (\"user\", password) \n VALUES ('" + Username + "', '" + Password + "') \n RETURNING *;"
-	q := "INSERT INTO users (\"user\", password) SELECT '" + Username + "', '" + hash + "' WHERE NOT EXISTS (SELECT \"user\" FROM users WHERE \"user\" = '" + Username + "') LIMIT 1 RETURNING \"user\";"
-	log.Println(q)
-	rows, err := db.Query(q)
+	query := "INSERT INTO users (\"user\", password) SELECT '" + Username + "', '" + hash + "' WHERE NOT EXISTS (SELECT \"user\" FROM users WHERE \"user\" = '" + Username + "') LIMIT 1 RETURNING \"user\";"
+	rows, err := configs.DB.Query(query)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,13 +68,8 @@ func TryRegister(Username string, Password string) string{
 
 func TryLogin(Username string, Password string) string{
 	log.Println("In TryLogin Util Function")
-	connStr := "postgresql://" + configs.EnvUsername() + ":" + configs.EnvPassword() + "@localhost/blog?sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-	q := "SELECT password from users WHERE \"user\" = '" + Username + "';"
-	rows, err := db.Query(q)
+	query := "SELECT password from users WHERE \"user\" = '" + Username + "';"
+	rows, err := configs.DB.Query(query)
 	if err != nil {
 		log.Fatal(err)
 	}

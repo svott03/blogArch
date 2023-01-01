@@ -20,8 +20,8 @@ func GetMainPage() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Println("In main controller...")
 
-		resp := responses.MainResponse{
-			Output: "In Main Page!",
+		resp := responses.StatusResponse{
+			Status: "In Main Page!",
 		}
 		c.JSON(http.StatusOK, resp)
 	}
@@ -32,8 +32,8 @@ func GetProfile() gin.HandlerFunc {
 		log.Println("In profile controller...")
 		// TODO add JWT for passing authentication information
 		resp := responses.ProfileResponse{
-			UserID:  "ID: John Doe",
-			Entries: []string{"FirstEntry", "SecondEntry"},
+			UserID:  "user1",
+			Entries: utils.GrabEntries(),
 		}
 		c.JSON(http.StatusOK, resp)
 	}
@@ -76,9 +76,15 @@ func Entry() gin.HandlerFunc {
 		if err != nil {
 			log.Fatalf("could not create user: %v", err)
 		}
-		// TODO entry positive/negative cases, insert into db then send appropriate response msg
+		// TODO JWT Username Here
+		var status string
+		if res.GetOutput() == "POSITIVE\n" {
+			status = utils.InsertEntry(body.Entry)
+		} else {
+			status = "Entry not inserted. Please refrain from toxic comments."
+		}
 		resp := responses.StatusResponse{
-			Status: res.GetOutput(),
+			Status: status,
 		}
 		c.JSON(http.StatusOK, resp)
 	}
