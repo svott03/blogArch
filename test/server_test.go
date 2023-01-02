@@ -100,7 +100,7 @@ func testLogin(assert *require.Assertions) string {
 	data, _ = json.Marshal(entry)
 	res, err = http.Post("http://localhost:8080/login", "application/json", bytes.NewBuffer(data))
 	assert.Nil(err)
-	var r2 responses.LoginResponse;
+	var r2 responses.LoginResponse
 	decoder = json.NewDecoder(res.Body)
 	err = decoder.Decode(&r2)
 	assert.Nil(err)
@@ -110,54 +110,43 @@ func testLogin(assert *require.Assertions) string {
 
 func testEntry(token string, assert *require.Assertions) {
 	// Post Entry Postive
+	entry := models.EntryModel{
+		Entry: "I love people!",
+	}
+	data, _ := json.Marshal(entry)
+	res, err := http.Post("http://localhost:8080/admin/entry?token=" + token, "application/json", bytes.NewBuffer(data))
+	assert.Nil(err)
+	var r responses.StatusResponse
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&r)
+	assert.Nil(err)
+	// assert equality
+	assert.Equal("Inserted entry!", r.Status, "they should be equal")
 
 	// Post Entry Negative
+	entry.Entry = "This is a negative entry. You suck!"
+	data, _ = json.Marshal(entry)
+	res, err = http.Post("http://localhost:8080/admin/entry?token=" + token, "application/json", bytes.NewBuffer(data))
+	assert.Nil(err)
+	decoder = json.NewDecoder(res.Body)
+	err = decoder.Decode(&r)
+	assert.Nil(err)
+	assert.Equal("Entry not inserted. Please refrain from toxic comments.", r.Status, "they should be equal")
 
 	// Post Entry Positive
+	entry.Entry = "Golang\\'s ecosystem is awesome."
+	data, _ = json.Marshal(entry)
+	res, err = http.Post("http://localhost:8080/admin/entry?token=" + token, "application/json", bytes.NewBuffer(data))
+	assert.Nil(err)
+	decoder = json.NewDecoder(res.Body)
+	err = decoder.Decode(&r)
+	assert.Nil(err)
+	assert.Equal("Inserted entry!", r.Status, "they should be equal")
 }
 
 func testProfile(token string, assert *require.Assertions) {
 	// Query Profile
 }
-
-// func TestLogin(t *testing.T) {
-//   assert := require.New(t)
-// 	entry := models.LoginModel {
-// 		Username: "user1",
-// 		Password: "password",
-// 	}
-// 	data, _ := json.Marshal(entry)
-// 	log.Println(string(data))
-// 	res, err := http.Post("http://localhost:8080/login", "application/json", bytes.NewBuffer(data))
-// 	assert.Nil(err)
-// 	var r responses.StatusResponse
-// 	decoder := json.NewDecoder(res.Body)
-// 	err = decoder.Decode(&r)
-// 	assert.Nil(err)
-// 	log.Printf("Status: %s\n", r.Status)
-//   assert.Equal("Logged in", r.Status, "they should be equal")
-
-// 	entry.Username = "Not Registered User"
-// 	data, _ = json.Marshal(entry)
-// 	res, err = http.Post("http://localhost:8080/login", "application/json", bytes.NewBuffer(data))
-// 	assert.Nil(err)
-// 	decoder = json.NewDecoder(res.Body)
-// 	err = decoder.Decode(&r)
-// 	assert.Nil(err)
-// 	log.Printf("Status: %s\n", r.Status)
-// 	assert.Equal("Username or password does not match", r.Status, "they should be equal")
-
-// 	entry.Username = "user1"
-// 	entry.Password = "IncorrectPassword"
-// 	data, _ = json.Marshal(entry)
-// 	res, err = http.Post("http://localhost:8080/login", "application/json", bytes.NewBuffer(data))
-// 	assert.Nil(err)
-// 	decoder = json.NewDecoder(res.Body)
-// 	err = decoder.Decode(&r)
-// 	assert.Nil(err)
-// 	log.Printf("Status: %s\n", r.Status)
-// 	assert.Equal("Username or password does not match", r.Status, "they should be equal")
-// }
 
 // func TestEntry(t *testing.T) {
 //   assert := require.New(t)
@@ -203,8 +192,8 @@ func TestAll(t *testing.T) {
 	assert := require.New(t)
 	testRegister(assert)
 	testFailEntry(assert)
-	// may not be a string
 	token := testLogin(assert)
+	log.Println("token is: " + token)
 	testEntry(token, assert)
 	testProfile(token, assert)
 }

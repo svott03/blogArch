@@ -112,7 +112,8 @@ func Login() gin.HandlerFunc {
 		}
 		// return JWT token
 		token, _ := utils.GenerateJWT(body.Username)
-		c.JSON(http.StatusOK, gin.H{"token":token, "Status": status})
+		log.Println("Login Token is: " + token)
+		c.JSON(http.StatusOK, gin.H{"Token":token, "Status": status})
 	}
 }
 
