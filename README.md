@@ -9,7 +9,10 @@ server_test <-> gateway <-> db
 
 In this system, we use a SQL database (PostgreSQL) as we have relational data (ie entry querying is relies on username).
 
+Setup DB
 Set the hostname/address as localhost
+
+Env: USER, PASSWORD, SECRET
 
 
 Features: password encryption, sql db, JWT???
