@@ -5,6 +5,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	
 	"log"
+	"errors"
 )
 
 func HashPassword(password string) (string, error) {
@@ -36,10 +37,10 @@ func GrabEntries() []string {
 	return allEntries
 }
 
-func InsertEntry(entry string) string {
+func InsertEntry(entry string, Username string) string {
 	log.Println("In InsertEntry Util Function")
 	// TODO add JWT username
-	query := "INSERT INTO entries (\"user\", entry) VALUES ('user1', '" + entry + "');"
+	query := "INSERT INTO entries (\"user\", entry) VALUES ('" + Username + "', '" + entry + "');"
 	_, err := configs.DB.Query(query)
 	if err != nil {
 		log.Fatal(err)
@@ -48,7 +49,7 @@ func InsertEntry(entry string) string {
 	return "Inserted entry!"
 }
 
-func TryRegister(Username string, Password string) string{
+func TryRegister(Username string, Password string) string {
 	hash, _ := HashPassword(Password)
 	// check database
 	log.Println("In TryRegister Util Function")
@@ -66,12 +67,13 @@ func TryRegister(Username string, Password string) string{
 	return res
 }
 
-func TryLogin(Username string, Password string) string{
+func TryLogin(Username string, Password string) (string, error) {
 	log.Println("In TryLogin Util Function")
 	query := "SELECT password from users WHERE \"user\" = '" + Username + "';"
 	rows, err := configs.DB.Query(query)
 	if err != nil {
 		log.Fatal(err)
+		return "", err
 	}
 	defer rows.Close()
 	var res string
@@ -80,8 +82,8 @@ func TryLogin(Username string, Password string) string{
 		log.Println(res)
 	}
 	if res == "" || !CheckPasswordHash(Password, res) {
-		return "Username or password does not match"
+		return "Username or password does not match", errors.New("error in TryLogin")
 	} else {
-		return "Logged in"
+		return "Logged in", nil
 	}
 }

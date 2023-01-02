@@ -1,10 +1,10 @@
 package controllers
 
 import (
+	"context"
 	"example.com/blogArch/gateway/models"
 	"example.com/blogArch/gateway/responses"
 	"example.com/blogArch/gateway/utils"
-	"context"
 	"log"
 	"net/http"
 	"time"
@@ -14,7 +14,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
-
 
 func GetMainPage() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -30,9 +29,15 @@ func GetMainPage() gin.HandlerFunc {
 func GetProfile() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Println("In profile controller...")
-		// TODO add JWT for passing authentication information
+		user, err := utils.ExtractTokenUser(c)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
 		resp := responses.ProfileResponse{
-			UserID:  "user1",
+			UserID:  user,
 			Entries: utils.GrabEntries(),
 		}
 		c.JSON(http.StatusOK, resp)
@@ -51,7 +56,13 @@ type FilterTask struct {
 func Entry() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Println("In entry controller...")
-		// TODO JWT authentication information
+		// Extract JWT
+		user, err := utils.ExtractTokenUser(c)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
 		var body models.EntryModel
 		c.BindJSON(&body)
 		// Send information to gRPC
@@ -70,16 +81,15 @@ func Entry() gin.HandlerFunc {
 
 		defer cancel()
 		res, err := cont.CreateFilterOutput(ctx, &pb.FilterInput{Input: body.Entry})
-		
+
 		log.Printf("Ouput is %s", res.GetOutput())
 
 		if err != nil {
 			log.Fatalf("could not create user: %v", err)
 		}
-		// TODO JWT Username Here
 		var status string
 		if res.GetOutput() == "POSITIVE\n" {
-			status = utils.InsertEntry(body.Entry)
+			status = utils.InsertEntry(body.Entry, user)
 		} else {
 			status = "Entry not inserted. Please refrain from toxic comments."
 		}
@@ -96,13 +106,15 @@ func Login() gin.HandlerFunc {
 		var body models.LoginModel
 		c.BindJSON(&body)
 
-		status := utils.TryLogin(body.Username, body.Password)
+		status, err := utils.TryLogin(body.Username, body.Password)
 
-		resp := responses.StatusResponse{
-			Status: status,
+		// return JWT token
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "username or password is incorrect."})
+			return
 		}
-		// TODO return JWT?
-		c.JSON(http.StatusOK, resp)
+		token, _ := utils.GenerateJWT(body.Username)
+		c.JSON(http.StatusOK, gin.H{"token":token, "Status": status})
 	}
 }
 
