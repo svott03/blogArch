@@ -20,7 +20,6 @@ func CheckPasswordHash(password, hash string) bool {
 }
 
 func GrabEntries() []string {
-	// TODO add JWT username authentication
 	log.Println("In GrabEntries Util Function")
 	query := "SELECT entry from entries WHERE \"user\" = 'user1';"
 	rows, err := configs.DB.Query(query)
