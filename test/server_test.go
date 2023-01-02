@@ -69,10 +69,43 @@ func testFailEntry(assert *require.Assertions) {
 }
 
 func testLogin(assert *require.Assertions) string {
-	// Login Fail
+	entry := models.LoginModel{
+		Username: "Not Registered User",
+		Password: "password",
+	}
+	// Login unregistered user
+	data, _ := json.Marshal(entry)
+	res, err := http.Post("http://localhost:8080/login", "application/json", bytes.NewBuffer(data))
+	assert.Nil(err)
+	var r responses.StatusResponse
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&r)
+	assert.Nil(err)
+	assert.Equal(400, res.StatusCode, "they should be equal")
+
+	// Login wrong password
+	entry.Username = "user1"
+	entry.Password = "IncorrectPassword"
+	data, _ = json.Marshal(entry)
+	res, err = http.Post("http://localhost:8080/login", "application/json", bytes.NewBuffer(data))
+	assert.Nil(err)
+	decoder = json.NewDecoder(res.Body)
+	err = decoder.Decode(&r)
+	assert.Nil(err)
+	assert.Equal(400, res.StatusCode, "they should be equal")
 
 	// Login Success
-	return ""
+	entry.Username = "user1"
+	entry.Password = "password"
+	data, _ = json.Marshal(entry)
+	res, err = http.Post("http://localhost:8080/login", "application/json", bytes.NewBuffer(data))
+	assert.Nil(err)
+	var r2 responses.LoginResponse;
+	decoder = json.NewDecoder(res.Body)
+	err = decoder.Decode(&r2)
+	assert.Nil(err)
+	assert.Equal("Logged in", r2.Status, "they should be equal")
+	return r2.Token
 }
 
 func testEntry(token string, assert *require.Assertions) {

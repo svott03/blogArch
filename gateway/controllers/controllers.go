@@ -105,14 +105,12 @@ func Login() gin.HandlerFunc {
 		log.Println("In login controller...")
 		var body models.LoginModel
 		c.BindJSON(&body)
-
 		status, err := utils.TryLogin(body.Username, body.Password)
-
-		// return JWT token
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "username or password is incorrect."})
+			c.JSON(http.StatusBadRequest, gin.H{"Status": "Username or password does not match"})
 			return
 		}
+		// return JWT token
 		token, _ := utils.GenerateJWT(body.Username)
 		c.JSON(http.StatusOK, gin.H{"token":token, "Status": status})
 	}
@@ -127,7 +125,6 @@ func Register() gin.HandlerFunc {
 		resp := responses.StatusResponse{
 			Status: status,
 		}
-		// TODO return JWT?
 		c.JSON(http.StatusOK, resp)
 	}
 }

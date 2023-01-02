@@ -8,3 +8,8 @@ type ProfileResponse struct {
 type StatusResponse struct {
 	Status string
 }
+
+type LoginResponse struct {
+	Token string
+	Status string
+}
