@@ -1,5 +1,9 @@
-# blogArch
-We attempt to create a distributed system.
+# Blog System Architecture 💬
+We implement blogArch to learn more about systems.
+
+## Design:
+![Design IMG](/assets/blogDesign.jpg)
+
 
 Our frontend will be a testing suite. We have an API gateway that handles http Requests. We also have a text-filter microservice that provides sentiment classification for text. Our microservice communicates with our gateway using gRPC magic.
 
