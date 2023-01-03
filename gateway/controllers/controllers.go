@@ -82,8 +82,6 @@ func Entry() gin.HandlerFunc {
 		defer cancel()
 		res, err := cont.CreateFilterOutput(ctx, &pb.FilterInput{Input: body.Entry})
 
-		log.Printf("Ouput is %s", res.GetOutput())
-
 		if err != nil {
 			log.Fatalf("could not create user: %v", err)
 		}
@@ -112,7 +110,6 @@ func Login() gin.HandlerFunc {
 		}
 		// return JWT token
 		token, _ := utils.GenerateJWT(body.Username)
-		log.Println("Login Token is: " + token)
 		c.JSON(http.StatusOK, gin.H{"Token":token, "Status": status})
 	}
 }

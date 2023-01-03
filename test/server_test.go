@@ -31,14 +31,12 @@ func testRegister(assert *require.Assertions) {
 		Password: "password",
 	}
 	data, _ := json.Marshal(entry)
-	log.Println(string(data))
 	res, err := http.Post("http://localhost:8080/register", "application/json", bytes.NewBuffer(data))
 	assert.Nil(err)
 	var r responses.StatusResponse
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&r)
 	assert.Nil(err)
-	log.Printf("Status: %s\n", r.Status)
 	assert.Equal("user1", r.Status, "they should be equal")
 
 	// Register Fail
@@ -47,7 +45,6 @@ func testRegister(assert *require.Assertions) {
 	decoder = json.NewDecoder(res.Body)
 	err = decoder.Decode(&r)
 	assert.Nil(err)
-	log.Printf("Status: %s\n", r.Status)
 	assert.Equal("", r.Status, "they should be equal")
 }
 
@@ -61,7 +58,6 @@ func testFailEntry(assert *require.Assertions) {
 	assert.Nil(err)
 	var r responses.StatusResponse
 	decoder := json.NewDecoder(res.Body)
-	log.Printf("FailedEntry Header %d\n", res.StatusCode)
 	err = decoder.Decode(&r)
 	assert.Nil(err)
 	// assert equality

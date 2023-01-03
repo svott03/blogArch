@@ -41,7 +41,6 @@ func InsertEntry(entry string, Username string) string {
 	log.Println("In InsertEntry Util Function")
 	entry = strings.Replace(entry, "\\'", "''", -1)
 	query := "INSERT INTO entries (\"user\", entry) VALUES ('" + Username + "', '" + entry + "');"
-	log.Println(query)
 	_, err := configs.DB.Query(query)
 	if err != nil {
 		log.Fatal(err)
@@ -63,7 +62,6 @@ func TryRegister(Username string, Password string) string {
 	var res string
 	for rows.Next() {
 		rows.Scan(&res)
-		// log.Println(res)
 	}
 	return res
 }
@@ -80,7 +78,6 @@ func TryLogin(Username string, Password string) (string, error) {
 	var res string
 	for rows.Next() {
 		rows.Scan(&res)
-		// log.Println(res)
 	}
 	if res == "" || !CheckPasswordHash(Password, res) {
 		return "Username or password does not match", errors.New("error in TryLogin")
